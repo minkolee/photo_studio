@@ -1,5 +1,6 @@
 import openpyxl
 import sys
+
 # 年和月
 global_year = 2019
 global_month = 12
@@ -34,7 +35,7 @@ col_continue_date = "BF"
 col_continue_value = "BG"
 
 # C 尾款相关列名
-col_tail_date = "AU"
+col_tail_date = "AN"
 col_tail_value = "AV"
 
 # D 选片加片列名
@@ -204,7 +205,7 @@ def generate_qualified_lists(total_rows, offset, year, month, col_name, target_l
 
 # 将字符串转换成key_list
 def cast_string_to_list(string_value):
-    if string_value is None or len(string_value) ==0:
+    if string_value is None or len(string_value) == 0:
         return []
 
     if string_value.strip() == "/":
@@ -230,14 +231,14 @@ def group_by_property(result_map, list_name, row_list, col_value_name, ws):
             key_list_string = str(ws[list_name + str(i)].value)
             key_list = cast_string_to_list(key_list_string)
             # print("{}行对应的键字符串是: {}, 键列表是 {}".format(i, key_list_string, key_list))
-            if len(key_list) == 0 :
+            if len(key_list) == 0:
                 update_map("默认", value, result_map)
-            elif len(key_list)==1 and key_list[0] =="None":
+            elif len(key_list) == 1 and key_list[0] == "None":
                 update_map("默认", value, result_map)
             else:
                 for key in key_list:
                     update_map(key, value, result_map)
-        except :
+        except:
             # 转换不成功就继续
             continue
 
@@ -323,17 +324,17 @@ def map_to_string_with_number(dictionary):
         result = result + " "
     return result
 
+
 # -----------------------------------------------------拍摄情况 模块3---------------------------------------
 
 def write_basic_content(ws):
-    print(ws["b2"].value)
-    ws["B2"] = str(global_year)+"年" + str(global_month)+"月营业额"
-    ws["B4"] = str(ws["B4"].value).replace("X",str(global_month))
-    ws["B6"] = str(ws["B6"].value).replace("X",str(global_month))
-    ws["B8"] = str(ws["B8"].value).replace("X",str(global_month))
-    ws["B10"] = str(ws["B10"].value).replace("X",str(global_month))
-    ws["B12"] = str(ws["B12"].value).replace("X",str(global_month))
-    ws["B14"] = str(ws["B14"].value).replace("X",str(global_month))
+    ws["B2"] = str(global_year) + "年" + str(global_month) + "月营业额"
+    ws["B4"] = str(ws["B4"].value).replace("X", str(global_month))
+    ws["B6"] = str(ws["B6"].value).replace("X", str(global_month))
+    ws["B8"] = str(ws["B8"].value).replace("X", str(global_month))
+    ws["B10"] = str(ws["B10"].value).replace("X", str(global_month))
+    ws["B12"] = str(ws["B12"].value).replace("X", str(global_month))
+    ws["B14"] = str(ws["B14"].value).replace("X", str(global_month))
 
     ws["E4"] = len(order_list)
     ws["E6"] = len(continue_order_list)
@@ -341,9 +342,6 @@ def write_basic_content(ws):
     ws["E10"] = len(photo_select_list)
     ws["E12"] = len(another_list)
     ws["E14"] = len(sales_list)
-
-
-
 
 
 def main():
@@ -414,10 +412,10 @@ def main():
     print("---------------------------模块2结束----------------------------")
     print()
 
-    # 摄影师统计, 按尾款时间
-    generate_qualified_lists(total_row, start_offset, global_year, global_month, col_tail_date, shoot_list, ws)
+    # 摄影师统计, 按AN列
+    generate_qualified_lists(total_row, start_offset, global_year, global_month, col_shoot_date, shoot_list, ws)
     # print(shoot_list)
-
+    # print(tail_list)
     # 生成摄影师统计的条数
     shooter_number_map = {}
     group_number_by_property(shooter_number_map, col_person_shooter, shoot_list, col_service_value, ws)
@@ -425,14 +423,14 @@ def main():
     # print(cal_map_total(shooter_number_map))
     print(map_to_string_with_number(shooter_number_map))
 
-    # 生成按摄影师统计的金额
+    # 生成按摄影师统计的服务金额
     shooter_map = {}
     group_by_property(shooter_map, col_person_shooter, shoot_list, col_service_value, ws)
     # print(shooter_map)
     # print(cal_map_total(shooter_map))
     print(map_to_string_with_number(shooter_map))
 
-    # 生成当月续订金额 按摄影师统计的结果
+    # 生成当月续订金额, 如果是BB和BC, 无需新生成shoot_continue_order_list 按摄影师统计的结果
     generate_qualified_lists(total_row, start_offset, global_year, global_month, col_continue_date,
                              shoot_continue_order_list, ws)
     # print(shoot_continue_order_list)
@@ -456,84 +454,84 @@ def main():
     # 生成符合日期的拍摄日期列名
     generate_qualified_lists(total_row, start_offset, global_year, global_month, col_shoot_date, shoot_date_list, ws)
     print("------------------------以下是按照拍摄日期和人员分类的服务金额-------------------------------")
-    print(shoot_date_list)
+    # print(shoot_date_list)
 
-    #1 摄影师按照 shootdate_list 及 col_service_value的 金额统计
+    # 1 摄影师按照 shootdate_list 及 col_service_value的 金额统计
     shoot_value_by_shoot_date_map = {}
     group_by_property(shoot_value_by_shoot_date_map, col_person_shooter, shoot_date_list, col_service_value, ws)
-    print(shoot_value_by_shoot_date_map)
+    # print(shoot_value_by_shoot_date_map)
     print(map_to_string_with_number(shoot_value_by_shoot_date_map))
 
-    #2 化妆师按照 shootdate_list 及 col_service_value的 金额统计
+    # 2 化妆师按照 shootdate_list 及 col_service_value的 金额统计
     cosmetician_value_by_shoot_date_map = {}
     group_by_property(cosmetician_value_by_shoot_date_map, col_person_cosmetician, shoot_date_list, col_service_value,
                       ws)
-    print(cosmetician_value_by_shoot_date_map)
+    # print(cosmetician_value_by_shoot_date_map)
     print(map_to_string_with_number(cosmetician_value_by_shoot_date_map))
 
-    #3 助理 shootdate_list 及 col_service_value的 金额统计
+    # 3 助理 shootdate_list 及 col_service_value的 金额统计
     assistant_value_by_shoot_date_map = {}
     group_by_property(assistant_value_by_shoot_date_map, col_person_assistant, shoot_date_list, col_service_value, ws)
-    print(assistant_value_by_shoot_date_map)
+    # print(assistant_value_by_shoot_date_map)
     print(map_to_string_with_number(assistant_value_by_shoot_date_map))
 
     print("------------------------以下是按照选片日期和人员分类的选片加片金额-------------------------------")
     # 确认选片日期列表
-    print(photo_select_list)
-    #4 摄影师按照 photo_select_list  及 col_photo_select_value 的金额统计
+    # print(photo_select_list)
+    # 4 摄影师按照 photo_select_list  及 col_photo_select_value 的金额统计
     shoot_value_by_select_date_map = {}
     group_by_property(shoot_value_by_select_date_map, col_person_shooter, photo_select_list, col_photo_select_value, ws)
-    print(shoot_value_by_select_date_map)
+    # print(shoot_value_by_select_date_map)
     print(map_to_string_with_number(shoot_value_by_select_date_map))
 
-    #5 化妆师按照 photo_select_list 及 col_photo_select_value 金额统计
+    # 5 化妆师按照 photo_select_list 及 col_photo_select_value 金额统计
     cosmetician_value_by_select_date_map = {}
     group_by_property(cosmetician_value_by_select_date_map, col_person_cosmetician, photo_select_list,
                       col_photo_select_value, ws)
-    print(cosmetician_value_by_select_date_map)
+    # print(cosmetician_value_by_select_date_map)
     print(map_to_string_with_number(cosmetician_value_by_select_date_map))
 
-    #6 助理按照 photo_select_list 及 col_photo_select_value 金额统计
+    # 6 助理按照 photo_select_list 及 col_photo_select_value 金额统计
     assistant_value_by_select_date_map = {}
     group_by_property(assistant_value_by_select_date_map, col_person_assistant, photo_select_list,
                       col_photo_select_value, ws)
-    print(assistant_value_by_select_date_map)
+    # print(assistant_value_by_select_date_map)
     print(map_to_string_with_number(assistant_value_by_select_date_map))
 
     print("------------------------以下是按照选片日期和人员分类的续订金额-------------------------------")
-    print(photo_select_list)
-    #7 摄影师按照 photo_select_list  及 col_continue_value 的金额统计
+    # print(photo_select_list)
+    # 7 摄影师按照 photo_select_list  及 col_continue_value 的金额统计
     shoot_value_by_select_date_continue_value_map = {}
     group_by_property(shoot_value_by_select_date_continue_value_map, col_person_shooter, photo_select_list,
                       col_continue_value, ws)
-    print(shoot_value_by_select_date_continue_value_map)
+    # print(shoot_value_by_select_date_continue_value_map)
     print(map_to_string_with_number(shoot_value_by_select_date_continue_value_map))
 
-    #8 化妆师按照 photo_select_list 及 col_continue_value 金额统计
+    # 8 化妆师按照 photo_select_list 及 col_continue_value 金额统计
     cosmetician_value_by_select_date_continue_value_map = {}
     group_by_property(cosmetician_value_by_select_date_continue_value_map, col_person_cosmetician, photo_select_list,
                       col_continue_value, ws)
-    print(cosmetician_value_by_select_date_continue_value_map)
+    # print(cosmetician_value_by_select_date_continue_value_map)
     print(map_to_string_with_number(cosmetician_value_by_select_date_continue_value_map))
 
-    #9 助理按照 photo_select_list 及 col_continue_value 金额统计
+    # 9 助理按照 photo_select_list 及 col_continue_value 金额统计
     assistant_value_by_select_date_continue_value_map = {}
     group_by_property(assistant_value_by_select_date_continue_value_map, col_person_assistant, photo_select_list,
                       col_continue_value, ws)
-    print(assistant_value_by_select_date_continue_value_map)
+    # print(assistant_value_by_select_date_continue_value_map)
     print(map_to_string_with_number(assistant_value_by_select_date_continue_value_map))
 
     # 计算除了销售基础工资之外的部分:
     bonus = len(sales_list) * 50 + (total_money_B + total_money_D) * 0.05 + (total_money_C + total_money_E) * 0.01 + (
-                                                                                                                     total_money_F - 500 * len(
-                                                                                                                         sales_list)) * 0.01
+            total_money_F - 500 * len(
+        sales_list)) * 0.01
     print("销售基本工资之外的部分为: {}".format(bonus))
     # 开始写入excel
 
     result_wb = open_excel("result.xlsx")
     result_ws = open_worksheet(result_wb)
 
-    #函数中写入文字和全局变量相关
+    # 函数中写入文字和全局变量相关
     write_basic_content(result_ws)
 
     # 计算变量在主函数中写
@@ -548,12 +546,13 @@ def main():
     result_ws["C19"] = map_to_string(result2)
     result_ws["C20"] = map_to_string(result3)
     result_ws["C21"] = map_to_string(result4)
-    #第三部分写入
+    # 第三部分写入
     result_ws["C26"] = map_to_string_with_number(shooter_number_map)
     result_ws["C27"] = map_to_string_with_number(shooter_map)
-    result_ws["C28"] = map_to_string_with_number(shoot_continue_order_map) + " | "+ map_to_string_with_number(shoot_continue_order_number_map)
+    result_ws["C28"] = map_to_string_with_number(shoot_continue_order_map) + " | " + map_to_string_with_number(
+        shoot_continue_order_number_map)
 
-    #第四部分写入
+    # 第四部分写入
     result_ws["E30"] = "摄影师"
     result_ws["F30"] = "化妆师"
     result_ws["G30"] = "助理"
@@ -570,19 +569,20 @@ def main():
     result_ws["E33"] = map_to_string_with_number(cosmetician_value_by_select_date_continue_value_map)
     result_ws["F33"] = map_to_string_with_number(assistant_value_by_select_date_continue_value_map)
 
+    # 填写工资
+    result_ws["D39"] = bonus
+
     result_wb.save("result.xlsx")
 
 
-
-
 if __name__ == '__main__':
+    if len(sys.argv) != 5:
+        print("参数错误")
 
-    # if len(sys.argv) != 4:
-    #     print("参数不正确")
-    #
-    # global_year = sys.argv[0]
-    # global_month =  sys.argv[1]
-    # raw_name = sys.argv[2]
-    # result_name = sys.argv[3]
+    global_year = int(sys.argv[1])
+    global_month = int(sys.argv[2])
+    raw_name = sys.argv[3]
+    result_name = sys.argv[4]
 
     main()
+    a = input("按任意键退出...")
