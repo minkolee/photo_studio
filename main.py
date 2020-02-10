@@ -2,8 +2,8 @@ import openpyxl
 import sys
 
 # 年和月
-global_year = 2019
-global_month = 12
+global_year = 2020
+global_month = 1
 
 # 文件名
 raw_name = "raw.xlsx"
@@ -35,7 +35,7 @@ col_continue_date = "BF"
 col_continue_value = "BG"
 
 # C 尾款相关列名
-col_tail_date = "AN"
+col_tail_date = "AU"
 col_tail_value = "AV"
 
 # D 选片加片列名
@@ -103,6 +103,9 @@ def calculateMaxRow(col):
 
 # 判断时间是否符合要求
 def is_date_qualified(data, year, month):
+
+    # print("当前处理的日期是: {}".format(data))
+
     if len(data) == 0:
         return False
     if data is None:
@@ -287,6 +290,9 @@ def map_to_string(dictionary):
 # 将某一个有效的行号的金额, 按照某一个序列的属性进行分类, 修改传入的map.
 # result_map 是map, list_name是渠道某个属性, row_list 是ABCDE可用行号列表, col_value_name是与ABCDE对应的金额列名
 def group_number_by_property(result_map, list_name, row_list, col_value_name, ws):
+
+    # print(col_value_name)
+
     for i in row_list:
         value_string = ws[col_value_name + str(i)].value
         # print(value_string)
@@ -433,7 +439,7 @@ def main():
     # 生成当月续订金额, 如果是BB和BC, 无需新生成shoot_continue_order_list 按摄影师统计的结果
     generate_qualified_lists(total_row, start_offset, global_year, global_month, col_continue_date,
                              shoot_continue_order_list, ws)
-    # print(shoot_continue_order_list)
+    print("有效续订时间是: {}".format(shoot_continue_order_list))
 
     shoot_continue_order_map = {}
     group_number_by_property(shoot_continue_order_map, col_person_shooter, shoot_continue_order_list, col_service_value,
@@ -502,21 +508,21 @@ def main():
     # print(photo_select_list)
     # 7 摄影师按照 photo_select_list  及 col_continue_value 的金额统计
     shoot_value_by_select_date_continue_value_map = {}
-    group_by_property(shoot_value_by_select_date_continue_value_map, col_person_shooter, photo_select_list,
+    group_by_property(shoot_value_by_select_date_continue_value_map, col_person_shooter, shoot_continue_order_list,
                       col_continue_value, ws)
     # print(shoot_value_by_select_date_continue_value_map)
     print(map_to_string_with_number(shoot_value_by_select_date_continue_value_map))
 
     # 8 化妆师按照 photo_select_list 及 col_continue_value 金额统计
     cosmetician_value_by_select_date_continue_value_map = {}
-    group_by_property(cosmetician_value_by_select_date_continue_value_map, col_person_cosmetician, photo_select_list,
+    group_by_property(cosmetician_value_by_select_date_continue_value_map, col_person_cosmetician, shoot_continue_order_list,
                       col_continue_value, ws)
     # print(cosmetician_value_by_select_date_continue_value_map)
     print(map_to_string_with_number(cosmetician_value_by_select_date_continue_value_map))
 
     # 9 助理按照 photo_select_list 及 col_continue_value 金额统计
     assistant_value_by_select_date_continue_value_map = {}
-    group_by_property(assistant_value_by_select_date_continue_value_map, col_person_assistant, photo_select_list,
+    group_by_property(assistant_value_by_select_date_continue_value_map, col_person_assistant, shoot_continue_order_list,
                       col_continue_value, ws)
     # print(assistant_value_by_select_date_continue_value_map)
     print(map_to_string_with_number(assistant_value_by_select_date_continue_value_map))
@@ -565,9 +571,9 @@ def main():
     result_ws["F32"] = map_to_string_with_number(cosmetician_value_by_select_date_map)
     result_ws["G32"] = map_to_string_with_number(assistant_value_by_select_date_map)
 
-    result_ws["D33"] = map_to_string_with_number(shoot_value_by_select_date_continue_value_map)
-    result_ws["E33"] = map_to_string_with_number(cosmetician_value_by_select_date_continue_value_map)
-    result_ws["F33"] = map_to_string_with_number(assistant_value_by_select_date_continue_value_map)
+    result_ws["E33"] = map_to_string_with_number(shoot_value_by_select_date_continue_value_map)
+    result_ws["F33"] = map_to_string_with_number(cosmetician_value_by_select_date_continue_value_map)
+    result_ws["G33"] = map_to_string_with_number(assistant_value_by_select_date_continue_value_map)
 
     # 填写工资
     result_ws["D39"] = bonus
@@ -578,6 +584,7 @@ def main():
 if __name__ == '__main__':
     if len(sys.argv) != 5:
         print("参数错误")
+        exit(0)
 
     global_year = int(sys.argv[1])
     global_month = int(sys.argv[2])
